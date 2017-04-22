@@ -1,6 +1,34 @@
 # SOLID
 
+O SOLID é um acrônimo criado por criado por Michael Feathers a partir dos cinco primeiros princípiocs ("five first principles") da programação orientada à objetos identificados por Robert C. Martin no início dos anos 2000.
+
+Esses princípios tem como objetivo obter as vantagens da orientação a objetos através de um código de alta qualidade e permita:
+- Leitura, testes e manutenção fáceis
+- Extensibilidade com o menor esforço possível
+- Reaproveitamento
+- Maximização do tempo de utilização do código
+
+A aplicação correta dos princípios SOLID permite um código altamente estruturado e desacoplado de modo que são evitadas, devido à uma estrutura frágil:
+- Dificuldades no teste
+- Dificuldades no isolamento de funcionalidades
+- Duplicação de código
+- Quebra de código em vários lugares após alterações
+
+A seguir vamos estudar cada um dos 5 príncipios que compõem o SOLID.
+
+[Single Responsability Principle](#single-responsability-principle)
+
+[Open-Closed Principle](#open-closed-principle)
+
+[Liskov Substitution Principle](#liskov-substitution-principle)
+
+[Interface Segregation Principle](#interface-segregation-principle)
+
+[Dependency Inversion Principle](#dependency-inversion-principle)
+
 ## Single Responsability Principle
+
+> "A class should have one, and only one, reason to change"
 
 O Princípio da Responsabilidade Única (Single Responsability Principle) diz que "uma classe deve ter um único motivo para ser modificada". Em outras palavras, uma classe deve ter uma única responsabilidade, um único motivo de existir.
 
@@ -133,3 +161,11 @@ public class UsuarioService
 De uma maneira bem grosseira, corrigimos a violação do SRP separando uma única classe Usuário, que antes era responsável por verificar se suas propriedades eram válidas, criar uma conexão com o banco e efetuar a inserção, em 4 classes com responsabilidades únicas. Dessa forma, desacoplamos o código, facilitando alterações e testes do mesmo. 
 
 Imagine, por exemplo, que os seus dados hoje guardados em um banco SQL passem a ser guardados em um arquivo XML. A única alteração a ser feita será no Repositório, mantendo todo o resto do nosso código intacto, uma vez que o Serviço e a Validação não precisam saber de que maneira é feita a conexão e a inserção na base de dados.
+
+## Open-Closed Principle
+
+## Liskov Substitution Principle
+
+## Interface Segregation Principle
+
+## Dependency Inversion Principle

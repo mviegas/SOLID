@@ -164,6 +164,115 @@ Imagine, por exemplo, que os seus dados hoje guardados em um banco SQL passem a 
 
 ## Open-Closed Principle
 
+> "Software entities (classes, modules, functions, etc.) should be open for extension but closed for modification"
+
+Esse princípio permite que o código seja extendido sem se preocupar com as classes, métodos legados. Uma vez que estas classes e métodos foram criados, eles não devem ser mais modificados, mas sim devem estar abertas para extensão.
+
+### Violação do OCP
+
+Seja o seguinte exemplo: um serviço de impressão de Notas Fiscais em um Sistema de Controle de Estoque. O Estoque é responsável por Receber as mercadorias e Devolver caso haja algum problema na mercadoria, por exemplo.
+
+```c#
+public class NotaFiscal { }
+
+public class NotaDeRecebimentoDeMercadoria : NotaFiscal
+{
+	public void GerarNotaDeRecebimento() { } 
+}
+
+public class NotaDeDevolucaoDeMercadoria : NotaFiscal
+{
+	public void GerarNotaDeDevolucao() { }
+}
+
+public class ImpressaoDeNotas()
+{
+	public Imprimirnotas(IEnumerable<NotaFiscal> notas)
+	{
+		foreach(var notaFiscal in notas)
+		{
+			if(notaFiscal is NotaDeRecebimentoDeMercadoria)
+				(notaFiscal as NotaDeRecebimentoDeMercadoria).GerarNotaDeRecebimento();
+			else if(notaFiscal is NotaDeDevolucaoDeMercadoria)
+				(notaFiscal as NotaDeDevolucaoDeMercadoria).GerarNotaDeDevolucao();
+		}
+	}
+}
+```
+
+Suponha que agora o nosso serviço precise contemplar um novo tipo de Nota Fiscal como uma Nota de Saída de Mercadoria, emitida quando alguma Mercadoria sai para entrega, por exemplo. Seguindo a mesma lógica implementada acima, o código ficaria assim:
+
+```c#
+public class NotaFiscal { }
+
+public class NotaDeRecebimentoDeMercadoria : NotaFiscal
+{
+	public void GerarNotaDeRecebimento() { } 
+}
+
+public class NotaDeDevolucaoDeMercadoria : NotaFiscal
+{
+	public void GerarNotaDeDevolucao() { }
+}
+
+public class NotaDeSaidaDeMercadoria : NotaFiscal
+{
+	public void GerarNotaDeSaida() { }
+}
+
+public class ImpressaoDeNotas()
+{
+	public Imprimirnotas(IEnumerable<NotaFiscal> notas)
+	{
+		foreach(var notaFiscal in notas)
+		{
+			if(notaFiscal is NotaDeRecebimentoDeMercadoria)
+				(notaFiscal as NotaDeRecebimentoDeMercadoria).GerarNotaDeRecebimento();
+			else if(notaFiscal is NotaDeDevolucaoDeMercadoria)
+				(notaFiscal as NotaDeDevolucaoDeMercadoria).GerarNotaDeDevolucao();
+			else if(notaFiscal is NotaDeSaidaDeMercadoria)
+				(notaFiscal as NotaDeSaidaDeMercadoria).GerarNotaDeSaida();
+		}
+	}
+}
+```
+Além de criar uma nova classe e implementar um novo método, a classe de ImpressaoDeNotas teria que ser alterada, mais precisamente o método Imprimir notas teria que ser alterado, para contemplar a impressão do novo tipo de Nota Fiscal. Daí, pode-se concluir que esse método não segue o OCP.
+
+### OCP da maneira correta
+
+```c#
+public abstract class NotaFiscal 
+{
+	public abstract void GerarNotaFiscal()
+}
+
+public class NotaDeRecebimentoDeMercadoria : NotaFiscal
+{
+	public override GerarNotaFiscal() { }
+}
+
+public class NotaDeDevolucaoDeMercadoria : NotaFiscal
+{
+	public override GerarNotaFiscal() { }
+}
+
+public class NotaDeSaidaDeMercadoria : NotaFiscal
+{
+	public override GerarNotaFiscal() { }
+}
+
+public class ImpressaoDeNotas()
+{
+	public Imprimirnotas(IEnumerable<NotaFiscal> notas)
+	{
+		foreach(var notaFiscal in notas)
+		{
+			notaFiscal.GerarNotaFiscal();
+		}
+	}
+}
+```
+
 ## Liskov Substitution Principle
 
 ## Interface Segregation Principle

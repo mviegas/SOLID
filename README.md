@@ -279,6 +279,20 @@ Desse modo, nosso serviço de impressão de notas está aberto para imprimir nov
 
 ## Liskov Substitution Principle
 
+> "Let q(x) be a property provable of objects x of a type T. Then q(y) should be provable objects of type S, where S is a subtype of T."
+
+Em outras palavras, "uma classe base deve poder ser substituída por sua classe derivada". Esse princípio foi proposto por Barabara Liskov em um artigo científico no ano de 1988.
+
+O OCP, visto acima, trabalha em conjunto com este princípio, garantindo sua aplicação, uma vez que o OCP induz à utilização abstrações e heranças. Contudo, é necessário ter cuidado para saber se a abstração aplicada é uma abstração válida. Caso não seja, temos uma violação do LSP.
+
+### Violação do LSP
+
+Um exemplo clássico de violação do LSP seria o seguinte
+
+```c#
+
+```
+
 ## Interface Segregation Principle
 
 ## Dependency Inversion Principle

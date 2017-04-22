@@ -170,7 +170,7 @@ Esse princípio permite que o código seja extendido sem se preocupar com as cla
 
 ### Violação do OCP
 
-Seja o seguinte exemplo: um serviço de impressão de Notas Fiscais em um Sistema de Controle de Estoque. O Estoque é responsável por Receber as mercadorias e Devolver caso haja algum problema na mercadoria, por exemplo.
+Seja o seguinte exemplo: um serviço de impressão de notas fiscais em um sistema de controle de estoque. O estoque é responsável por receber as mercadorias e devolvê-las caso elas tenham algum problema, por exemplo.
 
 ```c#
 public class NotaFiscal { }
@@ -200,7 +200,7 @@ public class ImpressaoDeNotas()
 }
 ```
 
-Suponha que agora o nosso serviço precise contemplar um novo tipo de Nota Fiscal como uma Nota de Saída de Mercadoria, emitida quando alguma Mercadoria sai para entrega, por exemplo. Seguindo a mesma lógica implementada acima, o código ficaria assim:
+Suponha que agora o nosso serviço precise contemplar um novo tipo de nota fiscal como uma nota de saída de mercadoria, emitida quando alguma mercadoria sai para entrega, por exemplo. Seguindo a mesma lógica implementada acima, o código ficaria assim:
 
 ```c#
 public class NotaFiscal { }
@@ -240,6 +240,8 @@ Além de criar uma nova classe e implementar um novo método, a classe de Impres
 
 ### OCP da maneira correta
 
+Para implementar o OCP corretamente, algumas coisas devem ser mudadas. Valendo-se de coneceitos como herança e polimorfismo, é interessante tornar classe NotaFiscal abstrata e implementar nela um método abstrato GerarNotaFiscal que será sobreescrito pelas classes filhas, garantindo assim que as classes filhas tenham esse método com a mesma chamada, mas com implementações diferentes.
+
 ```c#
 public abstract class NotaFiscal 
 {
@@ -272,6 +274,8 @@ public class ImpressaoDeNotas()
 	}
 }
 ```
+
+Desse modo, nosso serviço de impressão de notas está aberto para imprimir novos tipos de notas que possam surgir no controle do estoque, mas fechado para modificações.
 
 ## Liskov Substitution Principle
 

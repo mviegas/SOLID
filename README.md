@@ -243,35 +243,35 @@ Além de criar uma nova classe e implementar um novo método, a classe de Impres
 Para implementar o OCP corretamente, algumas coisas devem ser mudadas. Valendo-se de coneceitos como herança e polimorfismo, é interessante tornar classe NotaFiscal abstrata e implementar nela um método abstrato GerarNotaFiscal que será sobreescrito pelas classes filhas, garantindo assim que as classes filhas tenham esse método com a mesma chamada, mas com implementações diferentes.
 
 ```c#
-public abstract class NotaFiscal 
+public abstract class NotaFiscal
 {
-	public abstract void GerarNotaFiscal()
+    public abstract void GerarNotaFiscal();
 }
 
 public class NotaDeRecebimentoDeMercadoria : NotaFiscal
 {
-	public override GerarNotaFiscal() { }
+    public override void GerarNotaFiscal() { /* Implementação da Nota de Recebimento */ }
 }
 
 public class NotaDeDevolucaoDeMercadoria : NotaFiscal
 {
-	public override GerarNotaFiscal() { }
+    public override void GerarNotaFiscal() { /* Implementação da Nota de Devolução */ }
 }
 
 public class NotaDeSaidaDeMercadoria : NotaFiscal
 {
-	public override GerarNotaFiscal() { }
+    public override void GerarNotaFiscal() { /* Implementação da Nota de Saída */ }
 }
 
-public class ImpressaoDeNotas()
+public class ImpressaoDeNotas
 {
-	public Imprimirnotas(IEnumerable<NotaFiscal> notas)
-	{
-		foreach(var notaFiscal in notas)
-		{
-			notaFiscal.GerarNotaFiscal();
-		}
-	}
+    public void ImprimirNotas(IEnumerable<NotaFiscal> notas)
+    {
+        foreach (var notaFiscal in notas)
+        {
+            notaFiscal.GerarNotaFiscal();
+        }
+    }
 }
 ```
 
@@ -281,17 +281,71 @@ Desse modo, nosso serviço de impressão de notas está aberto para imprimir nov
 
 > "Let q(x) be a property provable of objects x of a type T. Then q(y) should be provable objects of type S, where S is a subtype of T."
 
-Em outras palavras, "uma classe base deve poder ser substituída por sua classe derivada". Esse princípio foi proposto por Barabara Liskov em um artigo científico no ano de 1988.
-
-O OCP, visto acima, trabalha em conjunto com este princípio, garantindo sua aplicação, uma vez que o OCP induz à utilização abstrações e heranças. Contudo, é necessário ter cuidado para saber se a abstração aplicada é uma abstração válida. Caso não seja, temos uma violação do LSP.
+Esse princípio foi proposto por Barabara Liskov em um artigo científico no ano de 1988, e é fundamental para a aplicação de heranças na orientação à objetos. Em outras palavras, este princípio também é enunciado da seguinte maneira: "uma classe base deve poder ser substituída por sua classe derivada". Ou seja, caso existe uma função ou um método, em uma classe filha que tenha como herança uma classe base, então, se existir uma instância dessa classe filha, esta deve ter o comportamento igual ao da classe base.
 
 ### Violação do LSP
 
-Um exemplo clássico de violação do LSP seria o seguinte
+Um exemplo clássico de violação do LSP seria o seguinte: sejam duas formas geométricas, um quadrado e um retângulo. Ambos são quadriláteros. 
 
 ```c#
+public class Retangulo
+{
+    public virtual int Altura { get; set; }
+    public virtual int Largura { get; set; }
 
+    public int CalcularArea { get { return Altura * Largura; } }
+}
+
+public class Quadrado : Retangulo   
+{
+    public override int Altura
+    {
+        set { base.Altura = base.Largura = value; }
+    }
+
+    public override int Largura
+    {
+        set { base.Altura = base.Largura = value; }
+    }
+}
 ```
+
+A classe base, Retângulo, tem Altura e Largura como duas propriedades que tem valores independentes um do outro. Quando a classe Quadrado herda de Retângulo e sobrescreve essas propriedades, dizendo que elas devem ter o mesmo valor, ocorre uma violação do LSP, uma vez que não temos mais o mesmo comportamento da classe base na classe filha.
+
+### LSP da maneira correta
+
+Uma possível solução para isso seria criar uma classe abstrata Paralelogramo, pois todos os paralelogramos tem as mesmas características: possuem altura e largura e tem a área calculada como um produto dessas duas propriedades. 
+
+```c#
+public abstract class Paralelogramo
+{
+    public Paralelogramo(int altura, int largura)
+    {
+        Altura = altura;
+        Largura = largura;
+    }
+
+    public int Altura { get; private set; }
+    public int Largura { get; private set; }
+    public int Area { get { return Altura * Largura; } }
+}
+
+public class Quadrado : Paralelogramo
+{
+    public Quadrado(int altura, int largura) : base(altura, largura)
+    {
+        if (altura != largura)
+            throw new Exception("Para um quadrado, a altura e a largura devem ser iguais.");
+    }
+}
+
+public class Retangulo : Paralelogramo
+{
+    public Retangulo(int altura, int largura) : base(altura, largura) { }
+}
+```
+
+Nessa solução específica, pode-se perceber como o LSP e o OCP andam lado a lado. Porque o tratamento da verificação dos lados do quadrado não foi implementado na classe Paralelogramo? Ao fazer isso, o OCP estaria sendo violado pois a classe Paralelogramo não estaria fechada para modificações. Da maneira como foi implementado, é garantido que Paralelograma está aberta para extensão e fechada para modificações.
 
 ## Interface Segregation Principle
 

@@ -173,31 +173,7 @@ Esse princípio permite que o código seja extendido sem se preocupar com as cla
 Seja o seguinte exemplo: um serviço de impressão de notas fiscais em um sistema de controle de estoque. O estoque é responsável por receber as mercadorias e devolvê-las caso elas tenham algum problema, por exemplo.
 
 ```c#
-public class NotaFiscal { }
 
-public class NotaDeRecebimentoDeMercadoria : NotaFiscal
-{
-	public void GerarNotaDeRecebimento() { } 
-}
-
-public class NotaDeDevolucaoDeMercadoria : NotaFiscal
-{
-	public void GerarNotaDeDevolucao() { }
-}
-
-public class ImpressaoDeNotas()
-{
-	public Imprimirnotas(IEnumerable<NotaFiscal> notas)
-	{
-		foreach(var notaFiscal in notas)
-		{
-			if(notaFiscal is NotaDeRecebimentoDeMercadoria)
-				(notaFiscal as NotaDeRecebimentoDeMercadoria).GerarNotaDeRecebimento();
-			else if(notaFiscal is NotaDeDevolucaoDeMercadoria)
-				(notaFiscal as NotaDeDevolucaoDeMercadoria).GerarNotaDeDevolucao();
-		}
-	}
-}
 ```
 
 Suponha que agora o nosso serviço precise contemplar um novo tipo de nota fiscal como uma nota de saída de mercadoria, emitida quando alguma mercadoria sai para entrega, por exemplo. Seguindo a mesma lógica implementada acima, o código ficaria assim:
@@ -207,33 +183,26 @@ public class NotaFiscal { }
 
 public class NotaDeRecebimentoDeMercadoria : NotaFiscal
 {
-	public void GerarNotaDeRecebimento() { } 
+    public void GerarNotaDeRecebimento() { }
 }
 
 public class NotaDeDevolucaoDeMercadoria : NotaFiscal
 {
-	public void GerarNotaDeDevolucao() { }
+    public void GerarNotaDeDevolucao() { }
 }
 
-public class NotaDeSaidaDeMercadoria : NotaFiscal
+public class ImpressaoDeNotas
 {
-	public void GerarNotaDeSaida() { }
-}
-
-public class ImpressaoDeNotas()
-{
-	public Imprimirnotas(IEnumerable<NotaFiscal> notas)
-	{
-		foreach(var notaFiscal in notas)
-		{
-			if(notaFiscal is NotaDeRecebimentoDeMercadoria)
-				(notaFiscal as NotaDeRecebimentoDeMercadoria).GerarNotaDeRecebimento();
-			else if(notaFiscal is NotaDeDevolucaoDeMercadoria)
-				(notaFiscal as NotaDeDevolucaoDeMercadoria).GerarNotaDeDevolucao();
-			else if(notaFiscal is NotaDeSaidaDeMercadoria)
-				(notaFiscal as NotaDeSaidaDeMercadoria).GerarNotaDeSaida();
-		}
-	}
+    public void ImprimirNotas(IEnumerable<NotaFiscal> notas)
+    {
+        foreach (var notaFiscal in notas)
+        {
+            if (notaFiscal is NotaDeRecebimentoDeMercadoria)
+                (notaFiscal as NotaDeRecebimentoDeMercadoria).GerarNotaDeRecebimento();
+            else if (notaFiscal is NotaDeDevolucaoDeMercadoria)
+                (notaFiscal as NotaDeDevolucaoDeMercadoria).GerarNotaDeDevolucao();
+        }
+    }
 }
 ```
 Além de criar uma nova classe e implementar um novo método, a classe de ImpressaoDeNotas teria que ser alterada, mais precisamente o método Imprimir notas teria que ser alterado, para contemplar a impressão do novo tipo de Nota Fiscal. Daí, pode-se concluir que esse método não segue o OCP.

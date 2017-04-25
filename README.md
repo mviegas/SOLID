@@ -318,4 +318,112 @@ Nessa solução específica, pode-se perceber como o LSP e o OCP andam lado a la
 
 ## Interface Segregation Principle
 
+> Classes that implement interfaces should not be forced to implement methods they do not use.
+
+Esse princípio diz que é melhor que existam várias interfaces com alguns métodos que serão todos utilizados, do que uma única interface que tenha vários métodos mas várias implementações que não utilizam todos eles. Ao implementar o ISP, cria-se um desacoplamento do código, facilitando a manutenção e trazendo coesão à implementação.
+
+### Violação do ISP
+
+Pensando num exemplo mais próximo de uma aplicação real, seja um serviço de gravação e recuperação de dados no banco, onde cada dado desse seja uma entidade que herde de uma classe comum chamada EntityBase.
+
+```c#
+public interface IService<T> where T : EntityBase
+{
+    T Get();
+    void Put(T entity);
+}
+
+public abstract class EntityBase
+{
+    public EntityBase(int id)
+    {
+        Id = id;
+    }
+
+    public int Id { get; private set; }
+}
+```
+
+Suponha agora que existam as seguintes classes e que o serviço não deva colocar nenhum Usuário novo banco, mas apenas recuperar.
+
+```c#
+public class Usuario : EntityBase
+{
+    public string Nome { get; set; }
+}
+
+public class Acesso : EntityBase
+{
+    public DateTime DataEHora { get; set; }
+}
+
+ public class UsuarioService : IService<Usuario>
+{
+    public Usuario Get(int id)
+    {
+        /* Implementação da lógica de Buscar o usuário */
+    }
+
+    public void Put(Usuario entity)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class AcessoService : IService<Acesso>
+{
+    public Acesso Get(int id)
+    {
+        /* Implementação da lógica de Buscar o Acesso */
+    }
+
+    public void Put(Acesso entity)
+    {
+        /* Implementação da lógica de incluir o Acesso */
+    }
+}
+
+```
+
+A implementação acima viola o ISP, uma vez que existem métodos de IService que não são implementados em UsuarioService.
+
+### ISP da maneira correta
+
+Uma solução seria separar a interface IService em duas: uma de leitura e uma de escrita. O código ficaria então da seguinte maneira:
+
+```c#
+public interface IReaderService<T> where T : EntityBase
+{
+    T Get(int id);
+}
+
+public interface IWriterService<T> where T : EntityBase
+{
+    void Put(T entity);
+}
+
+public class UsuarioService : IReaderService<Usuario>
+{
+    public Usuario Get(int id)
+    {
+        /* Implementação da lógica de Buscar o usuário */
+    }
+}
+
+public class AcessoService : IReaderService<Acesso>, IWriterService<Acesso>
+{
+    public Acesso Get(int id)
+    {
+        /* Implementação da lógica de Buscar o Acesso */
+    }
+
+    public void Put(Acesso entity)
+    {
+        /* Implementação da lógica de incluir o Acesso */
+    }
+}
+```
+
+Dessa forma, o ISP não estaria sendo violado.
+
 ## Dependency Inversion Principle

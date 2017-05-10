@@ -427,3 +427,128 @@ public class AcessoService : IReaderService<Acesso>, IWriterService<Acesso>
 Dessa forma, o ISP não estaria sendo violado.
 
 ## Dependency Inversion Principle
+
+> High-level modules should not depend on low-level modules. Both should depend on abstractions.
+> Abstractions should not depend on details. Details should depend on abstractions.
+
+Esse princípio tem como objetivo desacoplar as dependências do projeto, induzindo que módulos de alto e baixo nível dependam de uma mesma abstração.
+
+Voltando à resolução do primeiro exemplo [SRP](#single-responsability-principle), temos a seguinte classe estrutura para o cadastro de um usuário no banco de dados:
+
+```c#
+public class UsuarioRepository
+{
+    public bool Adicionar(Usuario usuario)
+    {
+        try
+        {
+            using (var connection = new SqlConnection())
+            {
+                var command = new SqlCommand();
+
+                connection.ConnectionString = "Local";
+                command.Connection = connection;
+                command.CommandType = System.Data.CommandType.Text;
+                command.CommandText = $"INSERT INTO USUARIO (ID, NOME, EMAIL, CPF) VALUES (@id, @nome, @email, @cpf)";
+
+                command.Parameters.AddWithValue("id", Id);
+                command.Parameters.AddWithValue("nome", Nome);
+                command.Parameters.AddWithValue("email", Email);
+                command.Parameters.AddWithValue("cpf", CPF);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+}
+
+public class UsuarioService
+{
+    public bool Inserir(Usuario usuario)
+    {
+        if (usuario.IsValid())
+            return false;
+
+        var repository = new UsuarioRepository();
+        repository.Adicionar(usuario);
+    }
+}
+```
+
+Note que para o serviço chamar o Repositório, ele instancia diretamente a classe UsuarioRepository. Isso viola o DIP e faz com que o Serviço dependa sempre da implementação concreta do Repositório. Uma possível solução seria:
+
+```c#
+public interface IUsuarioRepository
+{
+	bool Adicionar(Usuario usuario);
+}
+
+public class UsuarioRepository : IUsuarioRepository
+{
+    public bool Adicionar(Usuario usuario)
+    {
+        try
+        {
+            using (var connection = new SqlConnection())
+            {
+                var command = new SqlCommand();
+
+                connection.ConnectionString = "Local";
+                command.Connection = connection;
+                command.CommandType = System.Data.CommandType.Text;
+                command.CommandText = $"INSERT INTO USUARIO (ID, NOME, EMAIL, CPF) VALUES (@id, @nome, @email, @cpf)";
+
+                command.Parameters.AddWithValue("id", Id);
+                command.Parameters.AddWithValue("nome", Nome);
+                command.Parameters.AddWithValue("email", Email);
+                command.Parameters.AddWithValue("cpf", CPF);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+}
+
+public interface IService<T> where T : class
+{
+	bool Inserir(T entity);
+}
+
+public class UsuarioService : IService<Usuario>
+{
+	private IUsuarioRepository _usuarioRepository;
+	
+	public UsuarioService(IUsuarioRepository usuarioRepository)
+	{
+		_usuarioRepository = usuarioRepository;
+	}
+
+    public bool Inserir(Usuario usuario)
+    {
+        if (usuario.IsValid())
+            return false;
+
+        _usuarioRepository.Adicionar(usuario);
+    }
+}
+```
+
+Desta forma, as interfaces IUsuarioRepository e IService funcionariam como contratos, seguindo a idéia de que quem contrata não precisa saber como o que foi contratado é executado, mas apenas que o que está no contrato seja atendido. 
+
+Nota: a criação de IService segue a mesma idéia da criação de IUsuarioRepository, que é disponibilizar apenas o contrato, e não sua implementação concreta, a quem for necessário. Seria possível ainda a criação de mais uma interface IRepository<T> ou apenas IRepository que tivesse os métodos básicos compartilhados por todos os repositórios.
+
+Existem alguns frameworks em .NET como [Castle.Core](http://www.castleproject.org/) e [Unity](https://github.com/unitycontainer/unity), que possibilitam a injeção das dependências através de construtores, properties, fields e métodos.
